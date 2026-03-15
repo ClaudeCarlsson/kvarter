@@ -1,3 +1,5 @@
+/** @internal Test-only data source. Not used in production. */
+
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
 import type { Location, Pagination, Property, SearchFilters, SearchResults, SoldProperty } from '@/types'
 

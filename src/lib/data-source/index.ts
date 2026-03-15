@@ -51,6 +51,4 @@ export function _setDataSource(source: DataSource): void {
 
 export type { DataSource } from './types'
 export { BooliGraphQLSource } from './booli-source'
-export { BooliHttpScraper } from '../scraper/booli-http-scraper'
-export { HemnetScraper } from '../scraper/hemnet-scraper'
 export { MockDataSource } from './mock-source'

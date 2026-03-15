@@ -73,7 +73,8 @@ describe('data-source index', () => {
   test('getDataSource returns BooliHttpScraper when DATA_SOURCE is scraper', () => {
     process.env.DATA_SOURCE = 'scraper'
 
-    const { getDataSource, _resetDataSource, BooliHttpScraper } = require('../index')
+    const { getDataSource, _resetDataSource } = require('../index')
+    const { BooliHttpScraper } = require('../../scraper/booli-http-scraper')
     _resetDataSource()
 
     const source = getDataSource()
@@ -83,7 +84,8 @@ describe('data-source index', () => {
   test('getDataSource returns HemnetScraper when DATA_SOURCE is hemnet', () => {
     process.env.DATA_SOURCE = 'hemnet'
 
-    const { getDataSource, _resetDataSource, HemnetScraper } = require('../index')
+    const { getDataSource, _resetDataSource } = require('../index')
+    const { HemnetScraper } = require('../../scraper/hemnet-scraper')
     _resetDataSource()
 
     const source = getDataSource()
@@ -108,6 +110,5 @@ describe('data-source index', () => {
     expect(mod._setDataSource).toBeDefined()
     expect(mod.BooliGraphQLSource).toBeDefined()
     expect(mod.MockDataSource).toBeDefined()
-    expect(mod.BooliHttpScraper).toBeDefined()
   })
 })

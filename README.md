@@ -25,7 +25,7 @@ A data-dense housing search, analysis, and comparison platform for the Swedish r
 │ • Playwright │              │ • Price decomposition  │
 │ • Booli GQL  │              │ • Model accuracy       │
 │ • Hemnet     │              │ • Sold data analysis   │
-│ • Mock       │              │ • Confidence scoring   │
+│              │              │ • Confidence scoring   │
 └──────┬───────┴──────────────┴───────────────────────┘
        │
 ┌──────┴───────┐  ┌──────────────────┐  ┌─────────────┐
@@ -62,7 +62,7 @@ docker compose up redis -d
 
 # Configure
 cp .env.example .env.local
-# Set DATA_SOURCE=mock in .env.local for development
+# Set DATA_SOURCE=playwright in .env.local for development
 
 # Run
 bun run dev
@@ -75,7 +75,6 @@ Set `DATA_SOURCE` in `.env.local`:
 
 | Value | Source | Requires |
 |-------|--------|----------|
-| `mock` | 30 realistic Swedish listings + 40 sold | Nothing |
 | `playwright` | Live Booli.se scraping via Chromium | `docker compose up scraper` |
 | `booli-graphql` | Booli GraphQL API | API endpoint |
 | `hemnet` | Hemnet.se scraping | Docker scraper |
