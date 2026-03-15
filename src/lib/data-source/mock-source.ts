@@ -24,7 +24,10 @@ export class MockDataSource implements DataSource {
     let results: Property[] = [...MOCK_PROPERTIES]
 
     if (filters.locationId) {
-      const location = MOCK_LOCATIONS.find((l) => l.id === filters.locationId)
+      const lid = filters.locationId.toLowerCase()
+      const location = MOCK_LOCATIONS.find(
+        (l) => l.id === filters.locationId || l.name.toLowerCase() === lid,
+      )
       if (location) {
         results = results.filter(
           (p) =>
