@@ -8,17 +8,17 @@ const CONFIDENCE_CONFIG: Record<
 > = {
   below: {
     label: 'Below Estimate',
-    color: 'bg-green-100 text-green-800',
+    color: 'bg-[var(--color-accent-green)]/15 text-[var(--color-accent-green)]',
     symbol: '\u2193',
   },
   at: {
     label: 'At Estimate',
-    color: 'bg-amber-100 text-amber-800',
+    color: 'bg-[var(--color-accent-yellow)]/15 text-[var(--color-accent-yellow)]',
     symbol: '~',
   },
   above: {
     label: 'Above Estimate',
-    color: 'bg-red-100 text-red-800',
+    color: 'bg-[var(--color-accent-red)]/15 text-[var(--color-accent-red)]',
     symbol: '\u2191',
   },
 }
@@ -38,15 +38,14 @@ export function ConfidenceBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium',
+        'inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-mono font-medium',
         config.color,
         className,
       )}
     >
       <span aria-hidden="true">{config.symbol}</span>
       <span>
-        {config.label} ({sign}
-        {percent}%)
+        {sign}{percent}%
       </span>
     </span>
   )

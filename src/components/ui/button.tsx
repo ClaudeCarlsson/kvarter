@@ -7,10 +7,10 @@ type ButtonVariant = 'default' | 'outline' | 'ghost' | 'destructive'
 type ButtonSize = 'sm' | 'md' | 'lg'
 
 const variantStyles: Record<ButtonVariant, string> = {
-  default: 'bg-blue-600 text-white hover:bg-blue-700',
-  outline: 'border border-gray-300 bg-white text-gray-900 hover:bg-gray-50',
-  ghost: 'text-gray-700 hover:bg-gray-100',
-  destructive: 'bg-red-600 text-white hover:bg-red-700',
+  default: 'bg-[var(--color-primary)] text-[var(--color-primary-foreground)] hover:bg-[#3b82f6]',
+  outline: 'border border-[var(--color-border)] bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-tertiary)]',
+  ghost: 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-tertiary)] hover:text-[var(--color-text-primary)]',
+  destructive: 'bg-[var(--color-accent-red)] text-white hover:bg-[#da3633]',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -31,7 +31,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         className={cn(
-          'inline-flex cursor-pointer items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+          'inline-flex cursor-pointer items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-blue)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-surface)] disabled:pointer-events-none disabled:opacity-50',
           variantStyles[variant],
           sizeStyles[size],
           className,

@@ -98,15 +98,15 @@ export function FilterPanel() {
   }, [router, searchParams])
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white">
+    <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-secondary)]">
       <button
-        className="flex w-full items-center justify-between p-4 text-left lg:cursor-default"
+        className="flex w-full items-center justify-between px-4 py-3 text-left lg:cursor-default"
         onClick={() => setIsExpanded(!isExpanded)}
         type="button"
       >
-        <h2 className="text-sm font-semibold text-gray-900">Filters</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Filters</h2>
         <svg
-          className={`h-4 w-4 text-gray-400 transition-transform lg:hidden ${isExpanded ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 text-[var(--color-text-muted)] transition-transform lg:hidden ${isExpanded ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -115,83 +115,83 @@ export function FilterPanel() {
         </svg>
       </button>
 
-      <div className={`space-y-5 px-4 pb-4 ${isExpanded ? 'block' : 'hidden lg:block'}`}>
+      <div className={`space-y-4 px-4 pb-4 ${isExpanded ? 'block' : 'hidden lg:block'}`}>
         {/* Price Range */}
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-500">Price (kr)</label>
+          <label className="mb-1 block text-xs text-[var(--color-text-muted)]">Price (kr)</label>
           <div className="flex gap-2">
             <Input
               type="number"
               placeholder="Min"
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
-              className="text-sm"
+              className="text-xs font-mono"
             />
             <Input
               type="number"
               placeholder="Max"
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
-              className="text-sm"
+              className="text-xs font-mono"
             />
           </div>
         </div>
 
         {/* Rooms */}
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-500">Rooms</label>
+          <label className="mb-1 block text-xs text-[var(--color-text-muted)]">Rooms</label>
           <div className="flex gap-2">
             <Input
               type="number"
               placeholder="Min"
               value={minRooms}
               onChange={(e) => setMinRooms(e.target.value)}
-              className="text-sm"
+              className="text-xs font-mono"
             />
             <Input
               type="number"
               placeholder="Max"
               value={maxRooms}
               onChange={(e) => setMaxRooms(e.target.value)}
-              className="text-sm"
+              className="text-xs font-mono"
             />
           </div>
         </div>
 
         {/* Living Area */}
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-500">Living area (m&sup2;)</label>
+          <label className="mb-1 block text-xs text-[var(--color-text-muted)]">Living area (m&sup2;)</label>
           <div className="flex gap-2">
             <Input
               type="number"
               placeholder="Min"
               value={minArea}
               onChange={(e) => setMinArea(e.target.value)}
-              className="text-sm"
+              className="text-xs font-mono"
             />
             <Input
               type="number"
               placeholder="Max"
               value={maxArea}
               onChange={(e) => setMaxArea(e.target.value)}
-              className="text-sm"
+              className="text-xs font-mono"
             />
           </div>
         </div>
 
         {/* Property Type */}
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-500">Property type</label>
+          <label className="mb-1 block text-xs text-[var(--color-text-muted)]">Property type</label>
           <div className="flex flex-wrap gap-1.5">
             {ALL_PROPERTY_TYPES.map((type) => (
               <button
                 key={type}
                 type="button"
                 onClick={() => toggleType(type)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
                   selectedTypes.includes(type)
-                    ? 'bg-blue-100 text-blue-800'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-[var(--color-accent-blue)]/15 text-[var(--color-accent-blue)]'
+                    : 'bg-[var(--color-surface-tertiary)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
                 }`}
               >
                 {PROPERTY_TYPE_LABELS[type]}
@@ -202,13 +202,13 @@ export function FilterPanel() {
 
         {/* Monthly Fee */}
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-500">Max monthly fee (kr)</label>
+          <label className="mb-1 block text-xs text-[var(--color-text-muted)]">Max monthly fee (kr)</label>
           <Input
             type="number"
             placeholder="No limit"
             value={maxMonthlyFee}
             onChange={(e) => setMaxMonthlyFee(e.target.value)}
-            className="text-sm"
+            className="text-xs font-mono"
           />
         </div>
 

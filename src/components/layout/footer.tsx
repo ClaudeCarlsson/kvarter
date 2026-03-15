@@ -1,15 +1,13 @@
 export function Footer() {
   return (
-    <footer className="border-t border-gray-200 bg-gray-50">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
-          <p className="text-sm text-gray-500">
-            Data provided by Booli
-          </p>
-          <p className="text-sm text-gray-400">
-            &copy; {new Date().getFullYear()} Kvarter
-          </p>
-        </div>
+    <footer className="border-t border-[var(--color-border)] bg-[var(--color-surface-secondary)]">
+      <div className="container mx-auto flex items-center justify-between px-4 py-3">
+        <span className="text-xs text-[var(--color-text-muted)]">
+          Data provided by Booli
+        </span>
+        <span className="text-xs text-[var(--color-text-muted)]">
+          &copy; {new Date().getFullYear()} Kvarter
+        </span>
       </div>
     </footer>
   )

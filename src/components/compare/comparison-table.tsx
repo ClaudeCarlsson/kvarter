@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge'
 import { PROPERTY_TYPE_LABELS } from '@/lib/constants'
 import { formatPrice } from '@/lib/utils'
 import type { Property } from '@/types'
@@ -13,12 +12,12 @@ function Row({
   format?: 'text' | 'price' | 'number'
 }) {
   return (
-    <tr className="border-b border-gray-100">
-      <td className="py-3 pr-4 text-sm font-medium text-gray-500">{label}</td>
+    <tr className="border-b border-[var(--color-border)]">
+      <td className="py-2.5 pr-4 text-xs font-medium text-[var(--color-text-muted)]">{label}</td>
       {values.map((value, i) => (
-        <td key={i} className="px-4 py-3 text-sm text-gray-900">
+        <td key={i} className="px-4 py-2.5 text-xs font-mono text-[var(--color-text-secondary)]">
           {value === undefined || value === null
-            ? '—'
+            ? '\u2014'
             : format === 'price'
               ? formatPrice(value as number)
               : format === 'number'
@@ -37,16 +36,16 @@ export function ComparisonTable({ properties }: { properties: Property[] }) {
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
-          <tr className="border-b-2 border-gray-200">
-            <th className="pb-3 pr-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <tr className="border-b border-[var(--color-border-light)]">
+            <th className="pb-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
               Attribute
             </th>
             {properties.map((p) => (
-              <th key={p.id} className="px-4 pb-3 text-left">
-                <div className="text-sm font-semibold text-gray-900 truncate max-w-[180px]">
+              <th key={p.id} className="px-4 pb-2 text-left">
+                <div className="text-xs font-semibold text-[var(--color-text-primary)] truncate max-w-[180px]">
                   {p.address}
                 </div>
-                <div className="text-xs text-gray-500">{p.area}</div>
+                <div className="text-xs text-[var(--color-text-muted)]">{p.area}</div>
               </th>
             ))}
           </tr>
@@ -58,13 +57,13 @@ export function ComparisonTable({ properties }: { properties: Property[] }) {
             format="price"
           />
           <Row
-            label="Price/m²"
+            label="Price/m\u00B2"
             values={properties.map((p) => p.pricePerSqm)}
             format="price"
           />
           <Row
             label="Living area"
-            values={properties.map((p) => `${p.livingArea} m²`)}
+            values={properties.map((p) => `${p.livingArea} m\u00B2`)}
           />
           <Row
             label="Rooms"

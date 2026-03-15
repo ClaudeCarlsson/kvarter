@@ -29,14 +29,14 @@ export default async function PropertyDetailPage({
     : null
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-4">
       {/* Back link */}
       <Link
         href="/"
-        className="mb-6 inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+        className="mb-4 inline-flex items-center gap-1 text-xs text-[var(--color-accent-blue)] hover:text-[var(--color-primary)] transition-colors"
       >
         <svg
-          className="h-4 w-4"
+          className="h-3.5 w-3.5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -51,25 +51,13 @@ export default async function PropertyDetailPage({
         Back to search
       </Link>
 
-      {/* Hero */}
-      <div className="mb-8">
-        <div className="relative mb-4 h-64 overflow-hidden rounded-xl bg-gray-100 sm:h-80">
-          <div className="flex h-full items-center justify-center text-gray-400">
-            <svg
-              className="h-20 w-20"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1}
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-              />
-            </svg>
-          </div>
-          <div className="absolute left-3 top-3 flex gap-2">
+      {/* Header bar */}
+      <div className="mb-6 flex flex-col gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-secondary)] p-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-lg font-semibold text-[var(--color-text-primary)]">
+              {property.address}
+            </h1>
             <Badge variant="secondary">
               {PROPERTY_TYPE_LABELS[property.propertyType]}
             </Badge>
@@ -77,38 +65,30 @@ export default async function PropertyDetailPage({
               <Badge variant="success">New</Badge>
             )}
           </div>
+          <p className="text-sm text-[var(--color-text-muted)]">
+            {property.area}, {property.municipality}
+          </p>
         </div>
-
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              {property.address}
-            </h1>
-            <p className="text-gray-500">
-              {property.area}, {property.municipality}
+        <div className="text-right">
+          <p className="text-xl font-mono font-bold text-[var(--color-text-primary)]">
+            {formatPrice(property.price)}
+          </p>
+          {property.pricePerSqm && (
+            <p className="text-xs font-mono text-[var(--color-text-muted)]">
+              {formatPrice(property.pricePerSqm)}/m&sup2;
             </p>
-          </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              {formatPrice(property.price)}
-            </p>
-            {property.pricePerSqm && (
-              <p className="text-sm text-gray-400">
-                {formatPrice(property.pricePerSqm)}/m&sup2;
-              </p>
-            )}
-          </div>
+          )}
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         {/* Left column: Analytics */}
-        <div className="space-y-6 lg:col-span-2">
+        <div className="space-y-4 lg:col-span-2">
           {/* Price Decomposition */}
           {decomposition && (
             <Card>
               <CardHeader>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
                   Price Analysis
                 </h2>
               </CardHeader>
@@ -122,25 +102,25 @@ export default async function PropertyDetailPage({
           {property.description && (
             <Card>
               <CardHeader>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
                   Description
                 </h2>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">{property.description}</p>
+                <p className="text-sm text-[var(--color-text-secondary)]">{property.description}</p>
               </CardContent>
             </Card>
           )}
         </div>
 
         {/* Right column: Property details */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold text-gray-900">Details</h2>
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Details</h2>
             </CardHeader>
             <CardContent>
-              <dl className="space-y-3">
+              <dl className="space-y-0">
                 <DetailRow label="Living area" value={`${property.livingArea} m\u00B2`} />
                 <DetailRow
                   label="Rooms"
@@ -191,11 +171,11 @@ export default async function PropertyDetailPage({
                 href={property.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+                className="inline-flex items-center gap-1 text-xs text-[var(--color-accent-blue)] hover:text-[var(--color-primary)] transition-colors"
               >
                 View on Booli
                 <svg
-                  className="h-4 w-4"
+                  className="h-3.5 w-3.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -218,9 +198,9 @@ export default async function PropertyDetailPage({
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between border-b border-gray-50 pb-2 last:border-0">
-      <dt className="text-sm text-gray-500">{label}</dt>
-      <dd className="text-sm font-medium text-gray-900">{value}</dd>
+    <div className="flex justify-between border-b border-[var(--color-border)] py-2 last:border-0">
+      <dt className="text-xs text-[var(--color-text-muted)]">{label}</dt>
+      <dd className="text-xs font-mono font-medium text-[var(--color-text-secondary)]">{value}</dd>
     </div>
   )
 }

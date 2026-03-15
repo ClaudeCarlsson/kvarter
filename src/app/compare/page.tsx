@@ -6,6 +6,7 @@ import { ComparisonTable } from '@/components/compare/comparison-table'
 import { RadarChart } from '@/components/compare/radar-chart'
 import { SearchSkeleton } from '@/components/loading/search-skeleton'
 import { Button } from '@/components/ui/button'
+import { formatPrice } from '@/lib/utils'
 import type { Property } from '@/types'
 
 async function fetchProperties(ids: string[]): Promise<Property[]> {
@@ -22,15 +23,13 @@ async function ComparisonContent({ ids }: { ids: string[] }) {
 
   if (properties.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 py-16">
-        <svg className="mb-4 h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-        </svg>
-        <h3 className="text-lg font-medium text-gray-900">No properties to compare</h3>
-        <p className="mt-1 text-sm text-gray-500">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--color-border)] py-16">
+        <div className="mb-3 text-2xl text-[var(--color-text-muted)]">&lt;/&gt;</div>
+        <h3 className="text-sm font-medium text-[var(--color-text-secondary)]">No properties to compare</h3>
+        <p className="mt-1 text-xs text-[var(--color-text-muted)]">
           Select properties from search results to compare them.
         </p>
-        <Button asChild className="mt-4">
+        <Button asChild className="mt-4" size="sm">
           <Link href="/">Go to search</Link>
         </Button>
       </div>
@@ -38,23 +37,23 @@ async function ComparisonContent({ ids }: { ids: string[] }) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {/* Comparison Table */}
-      <section className="rounded-xl border border-gray-200 bg-white p-6">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+      <section className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-secondary)] p-4">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
           Side-by-side Comparison
         </h2>
         <ComparisonTable properties={properties} />
       </section>
 
       {/* Radar/Score Chart */}
-      <section className="rounded-xl border border-gray-200 bg-white p-6">
+      <section className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-secondary)] p-4">
         <RadarChart properties={properties} />
       </section>
 
       {/* Bottom Line */}
-      <section className="rounded-xl border border-gray-200 bg-white p-6">
-        <h3 className="mb-3 text-sm font-semibold text-gray-900">Quick Summary</h3>
+      <section className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-secondary)] p-4">
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Quick Summary</h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {(() => {
             const cheapest = [...properties].sort((a, b) => a.price - b.price)[0]
@@ -65,17 +64,20 @@ async function ComparisonContent({ ids }: { ids: string[] }) {
 
             return (
               <>
-                <div className="rounded-lg bg-green-50 p-3">
-                  <div className="text-xs font-medium text-green-800">Lowest Price</div>
-                  <div className="mt-1 text-sm font-semibold text-green-900">{cheapest.address}</div>
+                <div className="rounded-md border border-[var(--color-accent-green)]/20 bg-[var(--color-accent-green)]/5 p-3">
+                  <div className="text-xs font-medium text-[var(--color-accent-green)]">Lowest Price</div>
+                  <div className="mt-1 text-sm font-medium text-[var(--color-text-primary)]">{cheapest.address}</div>
+                  <div className="text-xs font-mono text-[var(--color-text-muted)]">{formatPrice(cheapest.price)}</div>
                 </div>
-                <div className="rounded-lg bg-blue-50 p-3">
-                  <div className="text-xs font-medium text-blue-800">Best kr/m²</div>
-                  <div className="mt-1 text-sm font-semibold text-blue-900">{bestValue.address}</div>
+                <div className="rounded-md border border-[var(--color-accent-blue)]/20 bg-[var(--color-accent-blue)]/5 p-3">
+                  <div className="text-xs font-medium text-[var(--color-accent-blue)]">Best kr/m&sup2;</div>
+                  <div className="mt-1 text-sm font-medium text-[var(--color-text-primary)]">{bestValue.address}</div>
+                  <div className="text-xs font-mono text-[var(--color-text-muted)]">{bestValue.pricePerSqm ? formatPrice(bestValue.pricePerSqm) + '/m\u00B2' : '\u2014'}</div>
                 </div>
-                <div className="rounded-lg bg-purple-50 p-3">
-                  <div className="text-xs font-medium text-purple-800">Largest</div>
-                  <div className="mt-1 text-sm font-semibold text-purple-900">{biggest.address}</div>
+                <div className="rounded-md border border-[var(--color-accent-yellow)]/20 bg-[var(--color-accent-yellow)]/5 p-3">
+                  <div className="text-xs font-medium text-[var(--color-accent-yellow)]">Largest</div>
+                  <div className="mt-1 text-sm font-medium text-[var(--color-text-primary)]">{biggest.address}</div>
+                  <div className="text-xs font-mono text-[var(--color-text-muted)]">{biggest.livingArea} m&sup2;</div>
                 </div>
               </>
             )
@@ -96,15 +98,15 @@ export default async function ComparePage({
   const ids = idsParam.split(',').filter(Boolean)
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="container mx-auto px-4 py-4">
+      <div className="mb-4 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Compare Properties</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-lg font-semibold text-[var(--color-text-primary)]">Compare Properties</h1>
+          <p className="text-xs text-[var(--color-text-muted)]">
             {ids.length} {ids.length === 1 ? 'property' : 'properties'} selected
           </p>
         </div>
-        <Button variant="outline" asChild>
+        <Button variant="outline" asChild size="sm">
           <Link href="/">Back to search</Link>
         </Button>
       </div>

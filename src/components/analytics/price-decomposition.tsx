@@ -22,16 +22,16 @@ function PriceBar({
     <div className="space-y-1">
       <div className="flex items-baseline justify-between text-sm">
         <div>
-          <span className="font-medium text-gray-900">{label}</span>
-          <span className="ml-2 text-gray-500">{description}</span>
+          <span className="font-medium text-[var(--color-text-primary)]">{label}</span>
+          <span className="ml-2 text-[var(--color-text-muted)]">{description}</span>
         </div>
-        <span className="ml-4 shrink-0 font-medium text-gray-900">
+        <span className="ml-4 shrink-0 font-mono font-medium text-[var(--color-text-secondary)]">
           {formatPrice(Math.abs(value))} ({Math.abs(percent)}%)
         </span>
       </div>
-      <div className="h-3 w-full rounded-full bg-gray-100">
+      <div className="h-2 w-full rounded-full bg-[var(--color-surface-tertiary)]">
         <div
-          className={cn('h-3 rounded-full transition-all', color)}
+          className={cn('h-2 rounded-full transition-all', color)}
           style={{ width: `${clampedWidth}%` }}
         />
       </div>
@@ -50,17 +50,17 @@ export function PriceDecompositionView({
   return (
     <div className="space-y-6">
       {/* Summary */}
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-center gap-6">
         <div>
-          <p className="text-sm text-gray-500">Model Estimate</p>
-          <p className="text-2xl font-bold text-gray-900">
+          <p className="text-xs uppercase tracking-wider text-[var(--color-text-muted)]">Model Estimate</p>
+          <p className="text-xl font-mono font-bold text-[var(--color-text-primary)]">
             {formatPrice(predictedPrice)}
           </p>
         </div>
-        <div className="text-gray-300">vs</div>
+        <div className="text-[var(--color-text-muted)]">vs</div>
         <div>
-          <p className="text-sm text-gray-500">Asking Price</p>
-          <p className="text-2xl font-bold text-gray-900">
+          <p className="text-xs uppercase tracking-wider text-[var(--color-text-muted)]">Asking Price</p>
+          <p className="text-xl font-mono font-bold text-[var(--color-text-primary)]">
             {formatPrice(askingPrice)}
           </p>
         </div>
@@ -73,21 +73,21 @@ export function PriceDecompositionView({
 
       {/* Decomposition bars */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
           Price Breakdown
         </h3>
         <PriceBar
           label="Location"
           value={components.location.value}
           percent={components.location.percent}
-          color="bg-blue-500"
+          color="bg-[var(--color-accent-blue)]"
           description={components.location.description}
         />
         <PriceBar
           label="Features"
           value={components.features.value}
           percent={components.features.percent}
-          color="bg-indigo-500"
+          color="bg-[var(--color-primary)]"
           description={components.features.description}
         />
         {components.residual.value !== 0 && (
@@ -96,7 +96,7 @@ export function PriceDecompositionView({
             value={components.residual.value}
             percent={components.residual.percent}
             color={
-              components.residual.value > 0 ? 'bg-red-400' : 'bg-green-400'
+              components.residual.value > 0 ? 'bg-[var(--color-accent-red)]' : 'bg-[var(--color-accent-green)]'
             }
             description={components.residual.description}
           />

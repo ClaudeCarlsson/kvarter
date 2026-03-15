@@ -11,13 +11,13 @@ export default function Error({
 }) {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center px-4">
-      <h2 className="mb-2 text-2xl font-bold text-gray-900">
+      <h2 className="mb-2 text-lg font-semibold text-[var(--color-text-primary)]">
         Something went wrong
       </h2>
-      <p className="mb-6 text-sm text-gray-500">
+      <p className="mb-6 text-sm text-[var(--color-text-muted)]">
         {error.message || 'An unexpected error occurred.'}
       </p>
-      <Button onClick={reset}>Try again</Button>
+      <Button onClick={reset} size="sm">Try again</Button>
     </div>
   )
 }

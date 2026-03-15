@@ -51,7 +51,7 @@ export function PropertyMap({ properties }: { properties: Property[] }) {
   }, [])
 
   return (
-    <div className="h-[500px] w-full overflow-hidden rounded-xl border border-gray-200">
+    <div className="h-[500px] w-full overflow-hidden rounded-lg border border-[var(--color-border)]">
       <Map
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
@@ -68,7 +68,7 @@ export function PropertyMap({ properties }: { properties: Property[] }) {
               handleMarkerClick(property)
             }}
           >
-            <div className="cursor-pointer rounded-full bg-blue-600 px-2 py-1 text-xs font-bold text-white shadow-md transition-transform hover:scale-110">
+            <div className="cursor-pointer rounded-full bg-[var(--color-primary)] px-2 py-1 text-xs font-mono font-bold text-white shadow-md transition-transform hover:scale-110">
               {formatPriceCompact(property.price)}
             </div>
           </Marker>
@@ -84,14 +84,14 @@ export function PropertyMap({ properties }: { properties: Property[] }) {
             offset={30}
           >
             <div className="min-w-[200px] p-1">
-              <h3 className="font-semibold text-gray-900">{selectedProperty.address}</h3>
-              <p className="text-sm text-gray-500">
+              <h3 className="font-semibold text-[var(--color-text-primary)]">{selectedProperty.address}</h3>
+              <p className="text-sm text-[var(--color-text-muted)]">
                 {selectedProperty.area}, {selectedProperty.municipality}
               </p>
-              <p className="mt-1 text-sm">
+              <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
                 {selectedProperty.rooms} rooms &middot; {selectedProperty.livingArea} m&sup2;
               </p>
-              <p className="mt-1 font-bold text-gray-900">
+              <p className="mt-1 font-mono font-bold text-[var(--color-text-primary)]">
                 {formatPriceCompact(selectedProperty.price)}
               </p>
             </div>
