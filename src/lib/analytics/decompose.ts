@@ -86,6 +86,12 @@ export function decomposePrice(
   let locationLnContribution = 0
   let featureLnContribution = 0
 
+  // Area premium (location fixed effect)
+  const areaKey = property.area.toLowerCase()
+  const areaPremium = coefficients.areaPremiums?.[areaKey] ?? 0
+  lnPrice += areaPremium
+  locationLnContribution += areaPremium
+
   for (const [name, coef] of Object.entries(coefficients.coefficients)) {
     const featureValue = features[name] ?? 0
     const contribution = coef * featureValue

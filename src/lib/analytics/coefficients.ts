@@ -6,6 +6,7 @@ export type ModelCoefficients = {
   createdAt: string
   intercept: number
   coefficients: Record<string, number>
+  areaPremiums: Record<string, number>
   featureNames: string[]
 }
 
@@ -14,6 +15,7 @@ type RawCoefficientsJson = {
   created_at: string
   intercept: number
   coefficients: Record<string, number>
+  area_premiums?: Record<string, number>
   feature_names: string[]
 }
 
@@ -36,6 +38,7 @@ export async function loadCoefficients(
       createdAt: data.created_at,
       intercept: data.intercept,
       coefficients: data.coefficients,
+      areaPremiums: data.area_premiums ?? {},
       featureNames: data.feature_names,
     }
   } catch {
