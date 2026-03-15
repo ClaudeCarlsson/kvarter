@@ -50,24 +50,24 @@ export async function requestWithRetry<T>(
   options: { maxRetries?: number; initialDelayMs?: number } = {},
 ): Promise<T> {
   const { maxRetries = MAX_RETRIES, initialDelayMs = INITIAL_DELAY_MS } = options
+  return attemptRequest(requestFn, maxRetries, initialDelayMs, 0)
+}
 
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      return await requestFn()
-    } catch (error) {
-      const normalized = normalizeBooliError(error)
-
-      if (!normalized.isRetryable || attempt >= maxRetries - 1) {
-        throw normalized
-      }
-
-      const delay = initialDelayMs * Math.pow(2, attempt)
-      await new Promise((resolve) => setTimeout(resolve, delay))
-    }
+async function attemptRequest<T>(
+  requestFn: () => Promise<T>,
+  maxRetries: number,
+  initialDelayMs: number,
+  attempt: number,
+): Promise<T> {
+  if (attempt >= maxRetries) throw new BooliApiError('Max retries exhausted', 'RETRY_EXHAUSTED')
+  try {
+    return await requestFn()
+  } catch (error) {
+    const normalized = normalizeBooliError(error)
+    if (!normalized.isRetryable || attempt >= maxRetries - 1) throw normalized
+    await new Promise((r) => setTimeout(r, initialDelayMs * Math.pow(2, attempt)))
+    return attemptRequest(requestFn, maxRetries, initialDelayMs, attempt + 1)
   }
-
-  // Unreachable -- the loop always returns or throws. Required by TypeScript.
-  throw new BooliApiError('Max retries exhausted', 'RETRY_EXHAUSTED')
 }
 
 export async function booliRequest<T>(

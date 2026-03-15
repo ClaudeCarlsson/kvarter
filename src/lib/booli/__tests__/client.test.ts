@@ -183,6 +183,16 @@ describe('requestWithRetry', () => {
     expect(delays).toEqual([200, 400, 800])
   })
 
+  test('throws RETRY_EXHAUSTED when maxRetries is 0', async () => {
+    try {
+      await requestWithRetry(async () => 'should not reach', { maxRetries: 0 })
+      expect.unreachable('should throw')
+    } catch (error) {
+      expect(error).toBeInstanceOf(BooliApiError)
+      expect((error as BooliApiError).code).toBe('RETRY_EXHAUSTED')
+    }
+  })
+
   test('retries network errors (retryable) then throws on last attempt', async () => {
     let calls = 0
     try {
