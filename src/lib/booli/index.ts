@@ -1,1 +1,0 @@
-export { BooliApiError } from './errors'
