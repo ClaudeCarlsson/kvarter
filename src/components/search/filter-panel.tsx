@@ -33,7 +33,7 @@ function parseFiltersFromParams(params: URLSearchParams): SearchFilters {
   }
 }
 
-export function FilterPanel() {
+export function FilterPanel({ basePath = '/' }: { basePath?: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const currentFilters = parseFiltersFromParams(searchParams)
@@ -76,8 +76,8 @@ export function FilterPanel() {
       params.delete('propertyTypes')
     }
 
-    router.push(`/?${params.toString()}`)
-  }, [router, searchParams, minPrice, maxPrice, minRooms, maxRooms, minArea, maxArea, maxMonthlyFee, selectedTypes])
+    router.push(`${basePath}?${params.toString()}`)
+  }, [router, searchParams, minPrice, maxPrice, minRooms, maxRooms, minArea, maxArea, maxMonthlyFee, selectedTypes, basePath])
 
   const resetFilters = useCallback(() => {
     setMinPrice('')
@@ -94,8 +94,8 @@ export function FilterPanel() {
     const locationName = searchParams.get('locationName')
     if (locationId) params.set('locationId', locationId)
     if (locationName) params.set('locationName', locationName)
-    router.push(`/?${params.toString()}`)
-  }, [router, searchParams])
+    router.push(`${basePath}?${params.toString()}`)
+  }, [router, searchParams, basePath])
 
   return (
     <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-secondary)]">

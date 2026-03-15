@@ -16,7 +16,7 @@ export function Header() {
             href="/"
             className="rounded-md px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-tertiary)] hover:text-[var(--color-text-primary)]"
           >
-            Search
+            Market
           </Link>
           <Link
             href="/sold"

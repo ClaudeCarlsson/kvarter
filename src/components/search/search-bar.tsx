@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { DEBOUNCE_MS } from '@/lib/constants'
 import type { Location } from '@/types'
 
-export function SearchBar() {
+export function SearchBar({ basePath = '/' }: { basePath?: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [query, setQuery] = useState('')
@@ -52,9 +52,9 @@ export function SearchBar() {
       params.set('locationId', location.id)
       params.set('locationName', location.name)
       params.delete('query')
-      router.push(`/?${params.toString()}`)
+      router.push(`${basePath}?${params.toString()}`)
     },
-    [router, searchParams],
+    [router, searchParams, basePath],
   )
 
   const handleKeyDown = useCallback(
@@ -92,9 +92,9 @@ export function SearchBar() {
     params.delete('locationId')
     params.delete('locationName')
     params.delete('query')
-    router.push(`/?${params.toString()}`)
+    router.push(`${basePath}?${params.toString()}`)
     inputRef.current?.focus()
-  }, [router, searchParams])
+  }, [router, searchParams, basePath])
 
   // Initialize from URL
   useEffect(() => {

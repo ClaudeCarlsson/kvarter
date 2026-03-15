@@ -47,7 +47,7 @@ function WelcomeState() {
         Kvarter Intelligence
       </div>
       <p className="text-sm text-[var(--color-text-secondary)]">
-        Search by city, neighborhood, or address to begin analysis.
+        Search by city, neighborhood, or address to explore the market.
       </p>
     </div>
   )
@@ -66,7 +66,7 @@ async function SearchResultsWrapper({
   return <SearchResultsView resultsPromise={resultsPromise} />
 }
 
-export default async function SearchPage({
+export default async function MarketPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>
