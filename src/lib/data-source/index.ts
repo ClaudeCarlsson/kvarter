@@ -6,7 +6,6 @@ import { PlaywrightSource } from '../scraper/playwright-source'
 
 import { BooliGraphQLSource } from './booli-source'
 import { FallbackDataSource } from './fallback-source'
-import { MockDataSource } from './mock-source'
 import type { DataSource } from './types'
 
 let instance: DataSource | null = null
@@ -24,24 +23,16 @@ export function getDataSource(): DataSource {
       instance = new HemnetScraper()
       break
     case 'playwright':
-      // Playwright scraper sidecar (Docker) with mock fallback
-      instance = new FallbackDataSource(
-        new PlaywrightSource(),
-        new MockDataSource(),
-      )
+      instance = new PlaywrightSource()
       break
-    case 'mock':
-      instance = new MockDataSource()
+    case 'booli-graphql':
+      instance = new FallbackDataSource(
+        new BooliGraphQLSource(booliRequest),
+        new PlaywrightSource(),
+      )
       break
     default:
-      // GraphQL with playwright fallback, with mock as last resort
-      instance = new FallbackDataSource(
-        new FallbackDataSource(
-          new BooliGraphQLSource(booliRequest),
-          new PlaywrightSource(),
-        ),
-        new MockDataSource(),
-      )
+      instance = new PlaywrightSource()
       break
   }
 

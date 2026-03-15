@@ -57,9 +57,21 @@ export class PlaywrightSource implements DataSource {
       const data: RawProperty[] = await response.json()
       if (!Array.isArray(data)) return empty
 
+      const MINIMUM_LISTING_PRICE = 100_000
+
       const properties: Property[] = data
         .map((raw) => this.mapProperty(raw))
         .filter((p): p is Property => p !== null)
+        .filter((p) => {
+          // Filter out properties with no address
+          if (!p.address) return false
+          // Filter out zero-price listings
+          if (p.price === 0) return false
+          // Filter out prices below 100,000 kr — likely monthly rent or fees,
+          // not actual listing prices (e.g. 35,000 kr for an apartment)
+          if (p.price < MINIMUM_LISTING_PRICE) return false
+          return true
+        })
 
       // Apply client-side filters (scraper returns everything for the query)
       const filtered = this.applyFilters(properties, filters)

@@ -18,13 +18,12 @@ export function getRedisUrl(): string | null {
   return process.env.REDIS_URL || null
 }
 
-export type DataSourceType = 'booli-graphql' | 'scraper' | 'hemnet' | 'playwright' | 'mock'
+export type DataSourceType = 'booli-graphql' | 'scraper' | 'hemnet' | 'playwright'
 
 export function getDataSourceType(): DataSourceType {
   const value = process.env.DATA_SOURCE
   if (value === 'scraper') return 'scraper'
   if (value === 'hemnet') return 'hemnet'
   if (value === 'playwright') return 'playwright'
-  if (value === 'mock') return 'mock'
   return 'booli-graphql'
 }

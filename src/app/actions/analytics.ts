@@ -2,7 +2,7 @@
 
 import { decomposePrice, loadCoefficients } from '@/lib/analytics'
 import type { PriceDecomposition } from '@/lib/analytics'
-import { MOCK_PROPERTIES } from '@/lib/booli/mock-data'
+import { getDataSource } from '@/lib/data-source'
 
 export async function getPropertyAnalysis(
   propertyId: string,
@@ -10,7 +10,9 @@ export async function getPropertyAnalysis(
   const coefficients = await loadCoefficients()
   if (!coefficients) return null
 
-  const property = MOCK_PROPERTIES.find((p) => p.id === propertyId)
+  const source = getDataSource()
+  const searchResult = await source.searchProperties({ query: propertyId })
+  const property = searchResult.properties.find((p) => p.id === propertyId)
   if (!property) return null
 
   return decomposePrice(property, coefficients)

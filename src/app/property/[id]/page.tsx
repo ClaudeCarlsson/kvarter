@@ -6,7 +6,7 @@ import { SoldRowCompact } from '@/components/sold/sold-row'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { decomposePrice, loadCoefficients } from '@/lib/analytics'
-import { MOCK_PROPERTIES } from '@/lib/booli/mock-data'
+import { getDataSource } from '@/lib/data-source'
 import { PROPERTY_TYPE_LABELS } from '@/lib/constants'
 import { cn, formatPrice, formatPriceCompact } from '@/lib/utils'
 
@@ -20,7 +20,11 @@ export default async function PropertyDetailPage({
   params,
 }: PropertyDetailParams) {
   const { id } = await params
-  const property = MOCK_PROPERTIES.find((p) => p.id === id)
+
+  // Fetch the property from the live data source by its ID
+  const source = getDataSource()
+  const searchResult = await source.searchProperties({ query: id })
+  const property = searchResult.properties.find((p) => p.id === id)
 
   if (!property) {
     notFound()

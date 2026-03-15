@@ -90,25 +90,15 @@ describe('data-source index', () => {
     expect(source).toBeInstanceOf(HemnetScraper)
   })
 
-  test('getDataSource returns FallbackDataSource wrapping PlaywrightSource when DATA_SOURCE is playwright', () => {
+  test('getDataSource returns PlaywrightSource directly when DATA_SOURCE is playwright', () => {
     process.env.DATA_SOURCE = 'playwright'
 
     const { getDataSource, _resetDataSource } = require('../index')
-    const { FallbackDataSource } = require('../fallback-source')
+    const { PlaywrightSource } = require('../../scraper/playwright-source')
     _resetDataSource()
 
     const source = getDataSource()
-    expect(source).toBeInstanceOf(FallbackDataSource)
-  })
-
-  test('getDataSource returns MockDataSource when DATA_SOURCE is mock', () => {
-    process.env.DATA_SOURCE = 'mock'
-
-    const { getDataSource, _resetDataSource, MockDataSource } = require('../index')
-    _resetDataSource()
-
-    const source = getDataSource()
-    expect(source).toBeInstanceOf(MockDataSource)
+    expect(source).toBeInstanceOf(PlaywrightSource)
   })
 
   test('exports DataSource type and implementations', () => {

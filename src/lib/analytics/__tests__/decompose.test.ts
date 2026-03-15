@@ -24,6 +24,12 @@ const TEST_COEFFICIENTS: ModelCoefficients = {
     property_type_plot: -0.30,
   },
   areaPremiums: { södermalm: 0.25, östermalm: 0.55 },
+  featureMeans: { sqm: 65, rooms: 2.5, floor: 3, log_construction_age: 4.7, monthly_fee: 3200 },
+  modelMaePercent: 19.5,
+  areaStats: {
+    södermalm: { medianSqmPrice: 82000, avgBidPremium: 8.5, transactionCount: 450 },
+    östermalm: { medianSqmPrice: 105000, avgBidPremium: 12.0, transactionCount: 320 },
+  },
   featureNames: [
     'sqm',
     'rooms',
@@ -151,12 +157,15 @@ describe('decomposePrice', () => {
     expect(result.components.features.description).toContain('2 rooms')
   })
 
-  test('location + features percentages sum to 100', () => {
+  test('location + features + condition + market percentages sum to 100', () => {
     const property = makeProperty()
     const result = decomposePrice(property, TEST_COEFFICIENTS)
 
     const sum =
-      result.components.location.percent + result.components.features.percent
+      result.components.location.percent +
+      result.components.features.percent +
+      result.components.condition.percent +
+      result.components.market.percent
     expect(sum).toBe(100)
   })
 
@@ -169,36 +178,34 @@ describe('decomposePrice', () => {
     )
   })
 
-  test('confidence is "below" when asking price is much lower than predicted', () => {
+  test('confidence is "undervalued" when asking price is much lower than predicted', () => {
     const predicted = getPredictedPrice()
-    // Set asking price to 50% of predicted - well below the -5% threshold
     const belowPrice = Math.round(predicted * 0.5)
     const property = makeProperty({ price: belowPrice })
     const result = decomposePrice(property, TEST_COEFFICIENTS)
 
-    expect(result.confidence).toBe('below')
+    expect(result.confidence).toBe('undervalued')
     expect(result.priceDifferencePercent).toBeLessThan(-5)
   })
 
-  test('confidence is "above" when asking price is much higher than predicted', () => {
+  test('confidence is "overvalued" when asking price is much higher than predicted', () => {
     const predicted = getPredictedPrice()
-    // Set asking price to 200% of predicted - well above the +5% threshold
     const abovePrice = Math.round(predicted * 2)
     const property = makeProperty({ price: abovePrice })
     const result = decomposePrice(property, TEST_COEFFICIENTS)
 
-    expect(result.confidence).toBe('above')
+    expect(result.confidence).toBe('overvalued')
     expect(result.priceDifferencePercent).toBeGreaterThan(5)
   })
 
-  test('confidence is "at" when asking price is close to predicted', () => {
+  test('confidence is "fair" when asking price is close to predicted', () => {
     const property = makeProperty()
     const initial = decomposePrice(property, TEST_COEFFICIENTS)
 
     const atProperty = makeProperty({ price: initial.predictedPrice })
     const result = decomposePrice(atProperty, TEST_COEFFICIENTS)
 
-    expect(result.confidence).toBe('at')
+    expect(result.confidence).toBe('fair')
     expect(Math.abs(result.priceDifferencePercent)).toBeLessThanOrEqual(5)
   })
 

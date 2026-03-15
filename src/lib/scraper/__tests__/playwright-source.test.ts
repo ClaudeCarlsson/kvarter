@@ -210,6 +210,7 @@ describe('PlaywrightSource', () => {
     test('maps location fields from nested structure', async () => {
       const data = [{
         booliId: 1,
+        address: 'Testgatan 5',
         price: 1000000,
         livingArea: 50,
         rooms: 2,
@@ -228,7 +229,7 @@ describe('PlaywrightSource', () => {
 
     test('maps rent to monthlyFee', async () => {
       const data = [{
-        booliId: 1, price: 1000000, livingArea: 30, rooms: 1, rent: 3500,
+        booliId: 1, address: 'Testgatan 6', price: 1000000, livingArea: 30, rooms: 1, rent: 3500,
       }]
       const source = new PlaywrightSource('http://scraper:3001', mockFetch(data))
       const results = await source.searchProperties({ query: 'test' })
@@ -237,7 +238,7 @@ describe('PlaywrightSource', () => {
 
     test('calculates pricePerSqm when not provided', async () => {
       const data = [{
-        booliId: 1, price: 3000000, livingArea: 60, rooms: 2,
+        booliId: 1, address: 'Testgatan 7', price: 3000000, livingArea: 60, rooms: 2,
       }]
       const source = new PlaywrightSource('http://scraper:3001', mockFetch(data))
       const results = await source.searchProperties({ query: 'test' })
@@ -255,7 +256,7 @@ describe('PlaywrightSource', () => {
         [undefined, 'apartment'],
       ]
       for (const [input, expected] of types) {
-        const data = [{ booliId: 1, price: 1, livingArea: 1, rooms: 1, objectType: input }]
+        const data = [{ booliId: 1, address: 'Testgatan 8', price: 1000000, livingArea: 1, rooms: 1, objectType: input }]
         const source = new PlaywrightSource('http://scraper:3001', mockFetch(data))
         const results = await source.searchProperties({ query: 'test' })
         expect(results.properties[0].propertyType).toBe(expected as import('@/types').PropertyType)

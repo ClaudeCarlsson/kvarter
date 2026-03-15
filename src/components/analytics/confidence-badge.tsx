@@ -1,23 +1,23 @@
 import { cn } from '@/lib/utils'
 
-type Confidence = 'below' | 'at' | 'above'
+type Confidence = 'undervalued' | 'fair' | 'overvalued'
 
 const CONFIDENCE_CONFIG: Record<
   Confidence,
   { label: string; color: string; symbol: string }
 > = {
-  below: {
-    label: 'Below Estimate',
+  undervalued: {
+    label: 'Undervalued',
     color: 'bg-[var(--color-accent-green)]/15 text-[var(--color-accent-green)]',
     symbol: '\u2193',
   },
-  at: {
-    label: 'At Estimate',
+  fair: {
+    label: 'Fair',
     color: 'bg-[var(--color-accent-yellow)]/15 text-[var(--color-accent-yellow)]',
     symbol: '~',
   },
-  above: {
-    label: 'Above Estimate',
+  overvalued: {
+    label: 'Overvalued',
     color: 'bg-[var(--color-accent-red)]/15 text-[var(--color-accent-red)]',
     symbol: '\u2191',
   },
@@ -26,10 +26,12 @@ const CONFIDENCE_CONFIG: Record<
 export function ConfidenceBadge({
   confidence,
   percent,
+  confidenceScore,
   className,
 }: {
   confidence: Confidence
   percent: number
+  confidenceScore?: number
   className?: string
 }) {
   const config = CONFIDENCE_CONFIG[confidence]
@@ -47,6 +49,11 @@ export function ConfidenceBadge({
       <span>
         {sign}{percent}%
       </span>
+      {confidenceScore != null && (
+        <span className="ml-1 opacity-60" title={`Model confidence: ${confidenceScore}/100`}>
+          ({confidenceScore})
+        </span>
+      )}
     </span>
   )
 }

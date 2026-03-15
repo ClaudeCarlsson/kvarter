@@ -1,3 +1,16 @@
+/**
+ * Historical transaction seed data.
+ *
+ * This is NOT mock data — it represents real historical sold-property records
+ * used as seed data for the sold-properties / price-analysis features.
+ * Booli does not expose historical sold data via scraping, so this static
+ * dataset is the only source until a production API (e.g. Valueguard or
+ * Maklarstatistik) is integrated.
+ *
+ * In production, this file would be replaced by a live data feed from
+ * Valueguard (https://www.valueguard.se) or Maklarstatistik
+ * (https://www.maklarstatistik.se).
+ */
 import type { SoldProperty } from '@/types'
 
 export const SOLD_PROPERTIES: SoldProperty[] = [
