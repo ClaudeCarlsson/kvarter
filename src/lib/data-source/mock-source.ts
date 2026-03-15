@@ -1,8 +1,9 @@
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
-import type { Location, Pagination, Property, SearchFilters, SearchResults } from '@/types'
+import type { Location, Pagination, Property, SearchFilters, SearchResults, SoldProperty } from '@/types'
 
 import { MOCK_LOCATIONS, MOCK_PROPERTIES } from '../booli/mock-data'
 
+import { SOLD_PROPERTIES } from './sold-data'
 import type { DataSource } from './types'
 
 export class MockDataSource implements DataSource {
@@ -85,5 +86,15 @@ export class MockDataSource implements DataSource {
       pagination,
       filters,
     }
+  }
+
+  async getSoldProperties(area?: string): Promise<SoldProperty[]> {
+    if (!area) return [...SOLD_PROPERTIES]
+    const q = area.toLowerCase()
+    return SOLD_PROPERTIES.filter(
+      (p) =>
+        p.area.toLowerCase().includes(q) ||
+        p.municipality.toLowerCase().includes(q),
+    )
   }
 }

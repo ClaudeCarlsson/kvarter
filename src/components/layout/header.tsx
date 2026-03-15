@@ -19,6 +19,12 @@ export function Header() {
             Search
           </Link>
           <Link
+            href="/sold"
+            className="rounded-md px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-tertiary)] hover:text-[var(--color-text-primary)]"
+          >
+            Sold
+          </Link>
+          <Link
             href="/compare"
             className="rounded-md px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-tertiary)] hover:text-[var(--color-text-primary)]"
           >

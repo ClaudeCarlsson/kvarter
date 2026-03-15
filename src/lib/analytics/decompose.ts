@@ -1,4 +1,4 @@
-import type { Property } from '@/types'
+import type { Coordinates, Property, PropertyType } from '@/types'
 
 import type { ModelCoefficients } from './coefficients'
 
@@ -24,10 +24,24 @@ export type PriceDecomposition = {
 const CONFIDENCE_THRESHOLD = 5
 
 /**
- * Build the feature vector from a Property for the hedonic model.
+ * Minimal shape required by buildFeatureVector.
+ * Both Property and SoldProperty satisfy this.
+ */
+export type FeatureInput = {
+  livingArea: number
+  rooms: number
+  floor?: number
+  constructionYear?: number
+  monthlyFee?: number
+  propertyType: PropertyType
+  coordinates: Coordinates
+}
+
+/**
+ * Build the feature vector from a property-like object for the hedonic model.
  */
 export function buildFeatureVector(
-  property: Property,
+  property: FeatureInput,
   featureNames: string[],
 ): Record<string, number> {
   const constructionAge = Math.max(

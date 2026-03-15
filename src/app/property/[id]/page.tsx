@@ -2,12 +2,15 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { PriceDecompositionView } from '@/components/analytics/price-decomposition'
+import { SoldRowCompact } from '@/components/sold/sold-row'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { decomposePrice, loadCoefficients } from '@/lib/analytics'
 import { MOCK_PROPERTIES } from '@/lib/booli/mock-data'
 import { PROPERTY_TYPE_LABELS } from '@/lib/constants'
-import { formatPrice } from '@/lib/utils'
+import { cn, formatPrice, formatPriceCompact } from '@/lib/utils'
+
+import { getModelAccuracy, getSoldProperties } from '@/app/actions/sold'
 
 type PropertyDetailParams = {
   params: Promise<{ id: string }>
@@ -23,10 +26,35 @@ export default async function PropertyDetailPage({
     notFound()
   }
 
-  const coefficients = await loadCoefficients()
+  const [coefficients, areaStats, areaSoldProperties] = await Promise.all([
+    loadCoefficients(),
+    getModelAccuracy(property.area),
+    getSoldProperties(property.area),
+  ])
+
   const decomposition = coefficients
     ? decomposePrice(property, coefficients)
     : null
+
+  // Compute area averages from sold data
+  const areaAvgPrice =
+    areaSoldProperties.length > 0
+      ? Math.round(
+          areaSoldProperties.reduce((sum, p) => sum + p.soldPrice, 0) /
+            areaSoldProperties.length,
+        )
+      : null
+  const areaAvgBidPremium =
+    areaSoldProperties.length > 0
+      ? Math.round(
+          (areaSoldProperties.reduce((sum, p) => sum + p.bidPremium, 0) /
+            areaSoldProperties.length) *
+            10,
+        ) / 10
+      : null
+
+  // Take at most 5 recent sales for the nearby section
+  const recentSales = areaSoldProperties.slice(0, 5)
 
   return (
     <div className="container mx-auto px-4 py-4">
@@ -108,6 +136,99 @@ export default async function PropertyDetailPage({
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-[var(--color-text-secondary)]">{property.description}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Area Analysis */}
+          {(areaAvgPrice || areaStats) && (
+            <Card>
+              <CardHeader>
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                  Area Analysis &mdash; {property.area}
+                </h2>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {areaAvgPrice && (
+                    <div>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Avg Sold Price
+                      </div>
+                      <div className="mt-0.5 text-sm font-mono font-bold text-[var(--color-text-primary)]">
+                        {formatPriceCompact(areaAvgPrice)}
+                      </div>
+                    </div>
+                  )}
+                  {areaAvgBidPremium != null && (
+                    <div>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Avg Bid Premium
+                      </div>
+                      <div className={cn(
+                        'mt-0.5 text-sm font-mono font-bold',
+                        areaAvgBidPremium > 0
+                          ? 'text-[var(--color-accent-green)]'
+                          : areaAvgBidPremium < 0
+                            ? 'text-[var(--color-accent-red)]'
+                            : 'text-[var(--color-text-primary)]',
+                      )}>
+                        {areaAvgBidPremium > 0 ? '+' : ''}{areaAvgBidPremium}%
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                      Recent Sales
+                    </div>
+                    <div className="mt-0.5 text-sm font-mono font-bold text-[var(--color-text-primary)]">
+                      {areaSoldProperties.length}
+                    </div>
+                  </div>
+                  {areaStats && (
+                    <div>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                        Model MAE%
+                      </div>
+                      <div className={cn(
+                        'mt-0.5 text-sm font-mono font-bold',
+                        areaStats.meanAbsoluteErrorPercent <= 5
+                          ? 'text-[var(--color-accent-green)]'
+                          : areaStats.meanAbsoluteErrorPercent <= 10
+                            ? 'text-[var(--color-accent-yellow)]'
+                            : 'text-[var(--color-accent-red)]',
+                      )}>
+                        {areaStats.meanAbsoluteErrorPercent}%
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recent Sales Nearby */}
+          {recentSales.length > 0 && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-baseline justify-between">
+                  <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+                    Recent Sales Nearby
+                  </h2>
+                  <Link
+                    href="/sold"
+                    className="text-[10px] text-[var(--color-accent-blue)] hover:text-[var(--color-primary)] transition-colors"
+                  >
+                    View all
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div>
+                  {recentSales.map((sold) => (
+                    <SoldRowCompact key={sold.id} property={sold} />
+                  ))}
+                </div>
               </CardContent>
             </Card>
           )}

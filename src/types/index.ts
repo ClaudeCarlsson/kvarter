@@ -13,3 +13,4 @@ export type {
   SearchResults,
   SearchSort,
 } from './search'
+export type { SoldProperty } from './sold'

@@ -269,4 +269,37 @@ describe('MockDataSource', () => {
       expect(results.filters).toEqual(filters)
     })
   })
+
+  describe('getSoldProperties', () => {
+    test('returns all sold properties when no area specified', async () => {
+      const results = await source.getSoldProperties()
+      expect(results.length).toBeGreaterThan(0)
+      for (const p of results) {
+        expect(p.soldPrice).toBeGreaterThan(0)
+        expect(p.askingPrice).toBeGreaterThan(0)
+        expect(p.soldDate).toBeTruthy()
+      }
+    })
+
+    test('filters by area', async () => {
+      const results = await source.getSoldProperties('Södermalm')
+      expect(results.length).toBeGreaterThan(0)
+      for (const p of results) {
+        expect(
+          p.area.toLowerCase().includes('södermalm') ||
+          p.municipality.toLowerCase().includes('södermalm'),
+        ).toBe(true)
+      }
+    })
+
+    test('filters by municipality', async () => {
+      const results = await source.getSoldProperties('Stockholm')
+      expect(results.length).toBeGreaterThan(0)
+    })
+
+    test('returns empty for non-existent area', async () => {
+      const results = await source.getSoldProperties('Nonexistent')
+      expect(results).toHaveLength(0)
+    })
+  })
 })

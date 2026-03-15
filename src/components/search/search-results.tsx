@@ -1,6 +1,7 @@
 'use client'
 
-import { Suspense, use, useCallback, useState } from 'react'
+import dynamic from 'next/dynamic'
+import { use, useCallback, useState } from 'react'
 
 import { MapSkeleton } from '@/components/loading/map-skeleton'
 import { formatPrice, formatPriceCompact } from '@/lib/utils'
@@ -10,14 +11,10 @@ import { NoResults } from './no-results'
 import { PropertyList } from './property-list'
 import { ResultsToggle, type ViewMode } from './results-toggle'
 
-function MapView({ results }: { results: SearchResultsType }) {
-  // Dynamic import of map to avoid SSR issues
-  const MapContainer = use(
-    import('@/components/map/map-container').then((mod) => mod),
-  )
-
-  return <MapContainer.PropertyMap properties={results.properties} />
-}
+const PropertyMap = dynamic(
+  () => import('@/components/map/map-container').then((mod) => mod.PropertyMap),
+  { ssr: false, loading: () => <MapSkeleton /> },
+)
 
 function StatsBar({ results }: { results: SearchResultsType }) {
   const properties = results.properties
@@ -72,9 +69,7 @@ function ResultsContent({ resultsPromise }: { resultsPromise: Promise<SearchResu
       {viewMode === 'list' ? (
         <PropertyList properties={results.properties} />
       ) : (
-        <Suspense fallback={<MapSkeleton />}>
-          <MapView results={results} />
-        </Suspense>
+        <PropertyMap properties={results.properties} />
       )}
     </div>
   )
