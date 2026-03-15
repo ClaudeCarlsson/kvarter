@@ -82,4 +82,63 @@ describe('loadCoefficients', () => {
     expect(result).not.toBeNull()
     expect(result!.version).toBeTruthy()
   })
+
+  test('loads feature_means as featureMeans', async () => {
+    const result = await loadCoefficients(FIXTURE_PATH)
+
+    expect(result).not.toBeNull()
+    expect(result!.featureMeans).toBeDefined()
+    expect(typeof result!.featureMeans).toBe('object')
+    expect(result!.featureMeans.sqm).toBe(65.0)
+    expect(result!.featureMeans.rooms).toBe(2.5)
+    expect(result!.featureMeans.floor).toBe(3.0)
+    expect(result!.featureMeans.log_construction_age).toBe(4.7)
+    expect(result!.featureMeans.monthly_fee).toBe(3200)
+  })
+
+  test('loads model_mae_percent as modelMaePercent', async () => {
+    const result = await loadCoefficients(FIXTURE_PATH)
+
+    expect(result).not.toBeNull()
+    expect(typeof result!.modelMaePercent).toBe('number')
+    expect(result!.modelMaePercent).toBe(19.5)
+  })
+
+  test('loads area_stats with camelCase keys', async () => {
+    const result = await loadCoefficients(FIXTURE_PATH)
+
+    expect(result).not.toBeNull()
+    expect(result!.areaStats).toBeDefined()
+
+    // Check a known area
+    const sodermalm = result!.areaStats['södermalm']
+    expect(sodermalm).toBeDefined()
+    expect(sodermalm.medianSqmPrice).toBe(82000)
+    expect(sodermalm.avgBidPremium).toBe(8.5)
+    expect(sodermalm.transactionCount).toBe(450)
+  })
+
+  test('area_stats covers all areas in area_premiums', async () => {
+    const result = await loadCoefficients(FIXTURE_PATH)
+
+    expect(result).not.toBeNull()
+    const premiumKeys = Object.keys(result!.areaPremiums)
+    const statsKeys = Object.keys(result!.areaStats)
+
+    // Every area with a premium should have stats
+    for (const key of premiumKeys) {
+      expect(statsKeys).toContain(key)
+    }
+  })
+
+  test('area stats values are all positive', async () => {
+    const result = await loadCoefficients(FIXTURE_PATH)
+
+    expect(result).not.toBeNull()
+    for (const stats of Object.values(result!.areaStats)) {
+      expect(stats.medianSqmPrice).toBeGreaterThan(0)
+      expect(stats.avgBidPremium).toBeGreaterThanOrEqual(0)
+      expect(stats.transactionCount).toBeGreaterThan(0)
+    }
+  })
 })

@@ -17,6 +17,10 @@ from analytics.model.hedonic import HedonicPriceModel
 def export_coefficients(model: HedonicPriceModel, path: str | Path) -> dict[str, Any]:
     """Serialize model coefficients to a JSON file.
 
+    Exports intercept, coefficients, feature names, property types,
+    feature means (for Shapley decomposition), and cross-validation
+    MAE (if available).
+
     Args:
         model: A fitted HedonicPriceModel.
         path: File path for the JSON output.
@@ -29,14 +33,18 @@ def export_coefficients(model: HedonicPriceModel, path: str | Path) -> dict[str,
 
     coeffs = model.get_coefficients()
 
-    data = {
-        "version": "1.0",
+    data: dict[str, Any] = {
+        "version": "3.0",
         "created_at": datetime.now(tz=timezone.utc).isoformat(),
         "intercept": coeffs["intercept"],
         "coefficients": coeffs["coefficients"],
         "feature_names": coeffs["feature_names"],
         "property_types": coeffs["property_types"],
+        "feature_means": coeffs.get("feature_means", {}),
     }
+
+    if "model_mae_percent" in coeffs:
+        data["model_mae_percent"] = coeffs["model_mae_percent"]
 
     output_path = Path(path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -55,7 +63,8 @@ def load_coefficients(path: str | Path) -> dict[str, Any]:
 
     Returns:
         Dictionary with version, created_at, intercept, coefficients,
-        feature_names, and property_types.
+        feature_names, property_types, feature_means, and optionally
+        model_mae_percent.
 
     Raises:
         FileNotFoundError: If the file does not exist.

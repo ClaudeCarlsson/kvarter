@@ -149,15 +149,17 @@ describe('decomposePrice', () => {
     expect(typeof result.priceDifference).toBe('number')
     expect(typeof result.priceDifferencePercent).toBe('number')
 
-    // Components should exist with positive values
+    // Main components should exist with non-negative values
     expect(result.components.location.value).toBeGreaterThan(0)
     expect(result.components.features.value).toBeGreaterThan(0)
+    expect(result.components.condition.value).toBeGreaterThanOrEqual(0)
+    expect(result.components.market.value).toBeGreaterThanOrEqual(0)
     expect(result.components.location.description).toContain('Stockholm')
     expect(result.components.features.description).toContain('60m')
     expect(result.components.features.description).toContain('2 rooms')
   })
 
-  test('location + features + condition + market percentages sum to 100', () => {
+  test('component percentages sum to approximately 100', () => {
     const property = makeProperty()
     const result = decomposePrice(property, TEST_COEFFICIENTS)
 
@@ -166,7 +168,9 @@ describe('decomposePrice', () => {
       result.components.features.percent +
       result.components.condition.percent +
       result.components.market.percent
-    expect(sum).toBe(100)
+    // Rounding can cause ±1
+    expect(sum).toBeGreaterThanOrEqual(99)
+    expect(sum).toBeLessThanOrEqual(101)
   })
 
   test('priceDifference equals askingPrice - predictedPrice', () => {
@@ -226,6 +230,8 @@ describe('decomposePrice', () => {
     expect(result.askingPrice).toBe(9_500_000)
     expect(result.components.location).toBeDefined()
     expect(result.components.features).toBeDefined()
+    expect(result.components.condition).toBeDefined()
+    expect(result.components.market).toBeDefined()
   })
 
   test('handles edge case: zero living area', () => {
@@ -241,6 +247,7 @@ describe('decomposePrice', () => {
     const result = decomposePrice(property, TEST_COEFFICIENTS)
 
     expect(result.predictedPrice).toBeGreaterThan(0)
+    expect(result.components.condition.description).toBe('Age unknown')
   })
 
   test('residual description reflects direction', () => {
@@ -302,5 +309,159 @@ describe('decomposePrice', () => {
     expect(result.askingPrice).toBe(0)
     expect(result.components.residual.percent).toBe(0)
     expect(Number.isFinite(result.components.residual.percent)).toBe(true)
+  })
+})
+
+describe('prediction interval', () => {
+  test('interval is centered around predicted price', () => {
+    const property = makeProperty()
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    const midpoint =
+      (result.predictionInterval.low + result.predictionInterval.high) / 2
+    // Midpoint should be within 1 of predicted price (rounding)
+    expect(Math.abs(midpoint - result.predictedPrice)).toBeLessThanOrEqual(1)
+  })
+
+  test('interval width scales with MAE percent', () => {
+    const property = makeProperty()
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    // For 80% CI with 19.5% MAE: half_width = 1.28 * 0.195 * predicted
+    const expectedHalfWidth = 1.28 * 0.195 * result.predictedPrice
+    const actualHalfWidth =
+      (result.predictionInterval.high - result.predictionInterval.low) / 2
+    expect(Math.abs(actualHalfWidth - expectedHalfWidth)).toBeLessThan(2)
+  })
+
+  test('confidence level is 0.8 (80%)', () => {
+    const property = makeProperty()
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    expect(result.predictionInterval.confidence).toBe(0.8)
+  })
+
+  test('low is less than high', () => {
+    const property = makeProperty()
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    expect(result.predictionInterval.low).toBeLessThan(
+      result.predictionInterval.high,
+    )
+  })
+
+  test('interval degenerates to point when MAE is 0', () => {
+    const zeroMaeCoefficients: ModelCoefficients = {
+      ...TEST_COEFFICIENTS,
+      modelMaePercent: 0,
+    }
+    const property = makeProperty()
+    const result = decomposePrice(property, zeroMaeCoefficients)
+
+    expect(result.predictionInterval.low).toBe(result.predictedPrice)
+    expect(result.predictionInterval.high).toBe(result.predictedPrice)
+  })
+})
+
+describe('comparables summary', () => {
+  test('uses area stats when available', () => {
+    const property = makeProperty() // Sodermalm
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    // Sodermalm has 450 transactions, median_sqm_price 82000
+    expect(result.comparables.count).toBe(450)
+    expect(result.comparables.medianPrice).toBe(82000 * 60) // 60 sqm
+    expect(result.comparables.priceRange.min).toBeLessThan(
+      result.comparables.medianPrice,
+    )
+    expect(result.comparables.priceRange.max).toBeGreaterThan(
+      result.comparables.medianPrice,
+    )
+  })
+
+  test('falls back when area not in stats', () => {
+    const property = makeProperty({ area: 'Unknown Area' })
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    expect(result.comparables.count).toBe(0)
+    expect(result.comparables.medianPrice).toBe(result.predictedPrice)
+  })
+
+  test('price range min is less than max', () => {
+    const property = makeProperty()
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    expect(result.comparables.priceRange.min).toBeLessThan(
+      result.comparables.priceRange.max,
+    )
+  })
+})
+
+describe('confidence score', () => {
+  test('returns a number between 0 and 100', () => {
+    const property = makeProperty()
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    expect(result.confidenceScore).toBeGreaterThanOrEqual(0)
+    expect(result.confidenceScore).toBeLessThanOrEqual(100)
+  })
+
+  test('known area with stats scores higher than unknown area', () => {
+    const knownResult = decomposePrice(
+      makeProperty({ area: 'Södermalm' }),
+      TEST_COEFFICIENTS,
+    )
+    const unknownResult = decomposePrice(
+      makeProperty({ area: 'Unknown Area' }),
+      TEST_COEFFICIENTS,
+    )
+
+    expect(knownResult.confidenceScore).toBeGreaterThan(
+      unknownResult.confidenceScore,
+    )
+  })
+})
+
+describe('Shapley decomposition', () => {
+  test('condition component describes construction year', () => {
+    const property = makeProperty({ constructionYear: 1925 })
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    expect(result.components.condition.description).toBe('Built 1925')
+  })
+
+  test('market component describes bid premium for known areas', () => {
+    const property = makeProperty() // Sodermalm
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    expect(result.components.market.description).toContain('8.5')
+    expect(result.components.market.description).toContain('bid premium')
+  })
+
+  test('market component has fallback description for unknown areas', () => {
+    const property = makeProperty({ area: 'Unknown Area' })
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    expect(result.components.market.description).toBe('Market conditions')
+  })
+
+  test('predicted price is always a realistic positive number', () => {
+    const property = makeProperty()
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    expect(result.predictedPrice).toBeGreaterThan(100_000)
+    expect(result.predictedPrice).toBeLessThan(100_000_000)
+    expect(Number.isFinite(result.predictedPrice)).toBe(true)
+  })
+
+  test('no component values are in exponential notation scale', () => {
+    const property = makeProperty()
+    const result = decomposePrice(property, TEST_COEFFICIENTS)
+
+    for (const comp of Object.values(result.components)) {
+      expect(Number.isFinite(comp.value)).toBe(true)
+      // Values should be reasonable SEK amounts (not e+15 or similar)
+      expect(Math.abs(comp.value)).toBeLessThan(100_000_000)
+    }
   })
 })

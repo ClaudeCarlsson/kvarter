@@ -12,6 +12,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import KFold
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,8 @@ class HedonicPriceModel:
         self._model: LinearRegression | None = None
         self._feature_names: list[str] = []
         self._property_types: list[str] = []
+        self._feature_means: dict[str, float] = {}
+        self._cv_mae_percent: float | None = None
 
     @property
     def is_fitted(self) -> bool:
@@ -98,6 +101,12 @@ class HedonicPriceModel:
 
         self._model = LinearRegression()
         self._model.fit(features, target)
+
+        # Compute and store feature means for Shapley decomposition
+        self._feature_means = {
+            name: float(features[name].mean())
+            for name in self._feature_names
+        }
 
         r_squared = self._model.score(features, target)
         logger.info("Model fitted: R^2=%.4f, n=%d, features=%d", r_squared, len(df), len(self._feature_names))
@@ -172,16 +181,90 @@ class HedonicPriceModel:
             "actual_price": round(float(row["price"]), 2),
         }
 
-    def get_coefficients(self) -> dict[str, Any]:
-        """Return model coefficients as a dictionary.
+    def compute_feature_means(self) -> dict[str, float]:
+        """Return the stored feature means computed during fit().
+
+        These means are used for Shapley-value decomposition on the
+        TypeScript side: each feature's contribution is centered around
+        its population mean.
 
         Returns:
-            Dictionary with intercept, coefficients, and feature names.
+            Dictionary mapping feature name to its training-set mean.
+
+        Raises:
+            RuntimeError: If the model has not been fitted.
         """
         if not self.is_fitted:
             raise RuntimeError("Model has not been fitted. Call fit() first.")
 
+        return dict(self._feature_means)
+
+    def cross_validate(self, df: pd.DataFrame, n_folds: int = 5) -> dict[str, float]:
+        """Perform k-fold cross-validation and return error metrics.
+
+        For each fold:
+        1. Fit the model on the training split.
+        2. Predict on the held-out validation split.
+        3. Compute MAE% (mean absolute error as a percentage of actual price).
+
+        Args:
+            df: Full training DataFrame.
+            n_folds: Number of cross-validation folds (default 5).
+
+        Returns:
+            Dictionary with:
+            - mean_mae_percent: average MAE% across folds
+            - std_mae_percent: standard deviation of MAE% across folds
+            - fold_maes: list of per-fold MAE% values
+        """
+        self._validate_columns(df)
+
+        kf = KFold(n_splits=n_folds, shuffle=True, random_state=42)
+        fold_maes: list[float] = []
+
+        for train_idx, val_idx in kf.split(df):
+            train_df = df.iloc[train_idx].reset_index(drop=True)
+            val_df = df.iloc[val_idx].reset_index(drop=True)
+
+            fold_model = HedonicPriceModel()
+            fold_model.fit(train_df)
+            predictions = fold_model.predict(val_df)
+
+            actual = val_df["price"].values.astype(float)
+            abs_errors_pct = np.abs((actual - predictions) / actual) * 100
+            fold_mae = float(np.mean(abs_errors_pct))
+            fold_maes.append(fold_mae)
+
+        mean_mae = float(np.mean(fold_maes))
+        std_mae = float(np.std(fold_maes))
+
+        self._cv_mae_percent = mean_mae
+
+        logger.info(
+            "Cross-validation: MAE%%=%.2f +/- %.2f across %d folds",
+            mean_mae,
+            std_mae,
+            n_folds,
+        )
+
         return {
+            "mean_mae_percent": round(mean_mae, 2),
+            "std_mae_percent": round(std_mae, 2),
+            "fold_maes": [round(m, 2) for m in fold_maes],
+        }
+
+    def get_coefficients(self) -> dict[str, Any]:
+        """Return model coefficients as a dictionary.
+
+        Returns:
+            Dictionary with intercept, coefficients, feature names,
+            property types, feature means, and cross-validation MAE
+            (if cross_validate has been called).
+        """
+        if not self.is_fitted:
+            raise RuntimeError("Model has not been fitted. Call fit() first.")
+
+        result: dict[str, Any] = {
             "intercept": float(self._model.intercept_),
             "coefficients": {
                 name: float(coef)
@@ -189,4 +272,10 @@ class HedonicPriceModel:
             },
             "feature_names": list(self._feature_names),
             "property_types": list(self._property_types),
+            "feature_means": dict(self._feature_means),
         }
+
+        if self._cv_mae_percent is not None:
+            result["model_mae_percent"] = round(self._cv_mae_percent, 2)
+
+        return result
