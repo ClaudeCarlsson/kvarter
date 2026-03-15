@@ -12,7 +12,8 @@
  */
 
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
-import type { Location, LocationType, Pagination, Property, PropertyType, SearchFilters, SearchResults } from '@/types'
+import { normalizeLocationType, normalizePropertyType } from '@/lib/normalize'
+import type { Location, Pagination, Property, SearchFilters, SearchResults } from '@/types'
 
 import type { DataSource } from '../data-source/types'
 
@@ -45,58 +46,6 @@ const DEFAULT_HEADERS: Record<string, string> = {
 
 /** Minimum delay between consecutive requests (ms). */
 const REQUEST_DELAY_MS = 200
-
-// ---------------------------------------------------------------------------
-// Property-type normalisation (Hemnet Swedish terms -> domain type)
-// ---------------------------------------------------------------------------
-
-const PROPERTY_TYPE_MAP: Record<string, PropertyType> = {
-  lagenhet: 'apartment',
-  lägenhet: 'apartment',
-  bostadsratt: 'apartment',
-  bostadsrätt: 'apartment',
-  apartment: 'apartment',
-  villa: 'house',
-  house: 'house',
-  radhus: 'townhouse',
-  townhouse: 'townhouse',
-  kedjehus: 'townhouse',
-  parhus: 'townhouse',
-  tomt: 'plot',
-  'tomt/mark': 'plot',
-  plot: 'plot',
-  fritidshus: 'cottage',
-  fritidsboende: 'cottage',
-  stuga: 'cottage',
-  cottage: 'cottage',
-}
-
-function normalizePropertyType(raw: string | undefined): PropertyType {
-  if (!raw) return 'apartment'
-  return PROPERTY_TYPE_MAP[raw.toLowerCase()] ?? 'apartment'
-}
-
-const LOCATION_TYPE_MAP: Record<string, LocationType> = {
-  kommun: 'kommun',
-  municipality: 'kommun',
-  stadsdel: 'stadsdel',
-  district: 'stadsdel',
-  stad: 'stad',
-  city: 'stad',
-  lan: 'lan',
-  county: 'lan',
-  region: 'lan',
-  omrade: 'omrade',
-  area: 'omrade',
-  street: 'adress',
-  adress: 'adress',
-  address: 'adress',
-}
-
-function normalizeLocationType(raw: string | undefined): LocationType {
-  if (!raw) return 'omrade'
-  return LOCATION_TYPE_MAP[raw.toLowerCase()] ?? 'omrade'
-}
 
 // ---------------------------------------------------------------------------
 // Hemnet property type -> URL slug mapping

@@ -1,5 +1,7 @@
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
-import type { Location, LocationType, Pagination, Property, PropertyType, SearchFilters, SearchResults } from '@/types'
+import { applyPropertyFilters } from '@/lib/filters'
+import { normalizePropertyType } from '@/lib/normalize'
+import type { Location, LocationType, Pagination, Property, SearchFilters, SearchResults } from '@/types'
 
 import type { DataSource } from '../data-source/types'
 
@@ -74,7 +76,7 @@ export class PlaywrightSource implements DataSource {
         })
 
       // Apply client-side filters (scraper returns everything for the query)
-      const filtered = this.applyFilters(properties, filters)
+      const filtered = applyPropertyFilters(properties, filters)
       const paged = filtered.slice(pagination.offset, pagination.offset + pagination.limit)
 
       return {
@@ -106,7 +108,7 @@ export class PlaywrightSource implements DataSource {
       totalFloors: raw.totalFloors,
       constructionYear: raw.constructionYear,
       monthlyFee: raw.monthlyFee || raw.rent,
-      propertyType: this.normalizeType(raw.objectType || raw.type),
+      propertyType: normalizePropertyType(raw.objectType || raw.type),
       coordinates: {
         latitude: raw.location?.position?.latitude || raw.latitude || 0,
         longitude: raw.location?.position?.longitude || raw.longitude || 0,
@@ -118,30 +120,6 @@ export class PlaywrightSource implements DataSource {
     }
   }
 
-  private normalizeType(raw?: string): PropertyType {
-    if (!raw) return 'apartment'
-    const map: Record<string, PropertyType> = {
-      lägenhet: 'apartment', lagenhet: 'apartment', apartment: 'apartment',
-      villa: 'house', house: 'house',
-      radhus: 'townhouse', townhouse: 'townhouse',
-      tomt: 'plot', plot: 'plot',
-      fritidshus: 'cottage', cottage: 'cottage',
-    }
-    return map[raw.toLowerCase()] || 'apartment'
-  }
-
-  private applyFilters(properties: Property[], filters: SearchFilters): Property[] {
-    let result = properties
-    if (filters.priceRange?.min) result = result.filter((p) => p.price >= filters.priceRange!.min!)
-    if (filters.priceRange?.max) result = result.filter((p) => p.price <= filters.priceRange!.max!)
-    if (filters.roomsRange?.min) result = result.filter((p) => p.rooms >= filters.roomsRange!.min!)
-    if (filters.roomsRange?.max) result = result.filter((p) => p.rooms <= filters.roomsRange!.max!)
-    if (filters.areaRange?.min) result = result.filter((p) => p.livingArea >= filters.areaRange!.min!)
-    if (filters.areaRange?.max) result = result.filter((p) => p.livingArea <= filters.areaRange!.max!)
-    if (filters.propertyTypes?.length) result = result.filter((p) => filters.propertyTypes!.includes(p.propertyType))
-    if (filters.maxMonthlyFee) result = result.filter((p) => (p.monthlyFee ?? 0) <= filters.maxMonthlyFee!)
-    return result
-  }
 }
 
 type RawLocation = {

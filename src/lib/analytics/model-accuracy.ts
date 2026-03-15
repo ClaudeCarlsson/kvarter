@@ -51,6 +51,12 @@ function predictPrice(
   const features = buildFeatureVector(property, coefficients.featureNames)
 
   let lnPrice = coefficients.intercept
+
+  // Add area premium
+  const areaKey = property.area.toLowerCase()
+  const areaPremium = coefficients.areaPremiums?.[areaKey] ?? 0
+  lnPrice += areaPremium
+
   for (const [name, coef] of Object.entries(coefficients.coefficients)) {
     const featureValue = features[name] ?? 0
     lnPrice += coef * featureValue

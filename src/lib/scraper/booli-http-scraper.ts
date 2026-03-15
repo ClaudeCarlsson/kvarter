@@ -11,7 +11,8 @@
  */
 
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
-import type { Location, LocationType, Pagination, Property, PropertyType, SearchFilters, SearchResults } from '@/types'
+import { normalizeLocationType, normalizePropertyType } from '@/lib/normalize'
+import type { Location, Pagination, Property, SearchFilters, SearchResults } from '@/types'
 
 import type { DataSource } from '../data-source/types'
 
@@ -84,49 +85,6 @@ const LOCATION_API_PATH = '/api/search'
 
 /** Minimum delay between consecutive requests (ms). */
 const REQUEST_DELAY_MS = 200
-
-// ---------------------------------------------------------------------------
-// Property-type normalisation (Swedish -> English domain type)
-// ---------------------------------------------------------------------------
-
-const PROPERTY_TYPE_MAP: Record<string, PropertyType> = {
-  lagenhet: 'apartment',
-  lägenhet: 'apartment',
-  apartment: 'apartment',
-  villa: 'house',
-  house: 'house',
-  radhus: 'townhouse',
-  townhouse: 'townhouse',
-  tomt: 'plot',
-  plot: 'plot',
-  fritidshus: 'cottage',
-  stuga: 'cottage',
-  cottage: 'cottage',
-}
-
-function normalizePropertyType(raw: string | undefined): PropertyType {
-  if (!raw) return 'apartment'
-  return PROPERTY_TYPE_MAP[raw.toLowerCase()] ?? 'apartment'
-}
-
-const LOCATION_TYPE_MAP: Record<string, LocationType> = {
-  kommun: 'kommun',
-  municipality: 'kommun',
-  stadsdel: 'stadsdel',
-  stad: 'stad',
-  city: 'stad',
-  lan: 'lan',
-  county: 'lan',
-  omrade: 'omrade',
-  area: 'omrade',
-  adress: 'adress',
-  address: 'adress',
-}
-
-function normalizeLocationType(raw: string | undefined): LocationType {
-  if (!raw) return 'omrade'
-  return LOCATION_TYPE_MAP[raw.toLowerCase()] ?? 'omrade'
-}
 
 // ---------------------------------------------------------------------------
 // BooliHttpScraper

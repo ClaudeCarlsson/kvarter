@@ -1,49 +1,7 @@
-import type { Location, LocationType, Pagination, Property, PropertyType, SearchFilters } from '@/types'
+import { normalizeLocationType, normalizePropertyType } from '@/lib/normalize'
+import type { Location, Pagination, Property, SearchFilters } from '@/types'
 
 import type { BooliLocationRaw, BooliPropertyRaw } from './types'
-
-const VALID_PROPERTY_TYPES: PropertyType[] = [
-  'apartment',
-  'house',
-  'townhouse',
-  'plot',
-  'cottage',
-]
-
-const VALID_LOCATION_TYPES: LocationType[] = [
-  'kommun',
-  'stadsdel',
-  'stad',
-  'lan',
-  'omrade',
-  'adress',
-]
-
-function normalizePropertyType(raw: string): PropertyType {
-  const lower = raw.toLowerCase()
-  if (VALID_PROPERTY_TYPES.includes(lower as PropertyType)) {
-    return lower as PropertyType
-  }
-  // Map Swedish terms
-  const mapping: Record<string, PropertyType> = {
-    lägenhet: 'apartment',
-    lagenhet: 'apartment',
-    villa: 'house',
-    radhus: 'townhouse',
-    tomt: 'plot',
-    fritidshus: 'cottage',
-    stuga: 'cottage',
-  }
-  return mapping[lower] ?? 'apartment'
-}
-
-function normalizeLocationType(raw: string): LocationType {
-  const lower = raw.toLowerCase()
-  if (VALID_LOCATION_TYPES.includes(lower as LocationType)) {
-    return lower as LocationType
-  }
-  return 'omrade'
-}
 
 export function mapBooliPropertyToDomain(raw: BooliPropertyRaw): Property {
   return {

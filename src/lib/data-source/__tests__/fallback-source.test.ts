@@ -129,6 +129,16 @@ describe('FallbackDataSource', () => {
       expect(fallback.searchProperties).toHaveBeenCalledWith(filters, pagination)
     })
 
+    test('falls back to fallback searchProperties on primary error', async () => {
+      const primary = createMockSource({
+        searchProperties: mock(async () => { throw new Error('fail') }),
+      })
+      const fallback = createMockSource()
+      const source = new FallbackDataSource(primary, fallback)
+      await source.searchProperties({})
+      expect(fallback.searchProperties).toHaveBeenCalled()
+    })
+
     test('propagates fallback error if both fail', async () => {
       const primary = createMockSource({
         searchProperties: mock(async () => {
@@ -149,6 +159,48 @@ describe('FallbackDataSource', () => {
       } catch (error) {
         expect((error as Error).message).toBe('fallback also down')
       }
+    })
+  })
+
+  describe('getSoldProperties', () => {
+    test('returns primary sold data when available', async () => {
+      const primary = createMockSource({
+        getSoldProperties: mock(async () => [{ id: 'sold-1' }] as never),
+      })
+      const fallback = createMockSource()
+      const source = new FallbackDataSource(primary, fallback)
+      const results = await source.getSoldProperties('Stockholm')
+      expect(results).toHaveLength(1)
+    })
+
+    test('falls back when primary has no getSoldProperties', async () => {
+      const primary = createMockSource()
+      const fallback = createMockSource({
+        getSoldProperties: mock(async () => [{ id: 'fb-1' }] as never),
+      })
+      const source = new FallbackDataSource(primary, fallback)
+      const results = await source.getSoldProperties()
+      expect(results).toHaveLength(1)
+    })
+
+    test('falls back when primary getSoldProperties throws', async () => {
+      const primary = createMockSource({
+        getSoldProperties: mock(async () => { throw new Error('fail') }),
+      })
+      const fallback = createMockSource({
+        getSoldProperties: mock(async () => [{ id: 'fb-2' }] as never),
+      })
+      const source = new FallbackDataSource(primary, fallback)
+      const results = await source.getSoldProperties('test')
+      expect(results).toHaveLength(1)
+    })
+
+    test('returns empty when neither source has getSoldProperties', async () => {
+      const primary = createMockSource()
+      const fallback = createMockSource()
+      const source = new FallbackDataSource(primary, fallback)
+      const results = await source.getSoldProperties()
+      expect(results).toEqual([])
     })
   })
 })

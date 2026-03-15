@@ -1,4 +1,4 @@
-import type { Location, Pagination, SearchFilters, SearchResults } from '@/types'
+import type { Location, Pagination, SearchFilters, SearchResults, SoldProperty } from '@/types'
 
 import type { DataSource } from './types'
 
@@ -25,5 +25,19 @@ export class FallbackDataSource implements DataSource {
     } catch {
       return this.fallback.searchProperties(filters, pagination)
     }
+  }
+
+  async getSoldProperties(area?: string): Promise<SoldProperty[]> {
+    try {
+      if (this.primary.getSoldProperties) {
+        return await this.primary.getSoldProperties(area)
+      }
+    } catch {
+      /* fall through */
+    }
+    if (this.fallback.getSoldProperties) {
+      return this.fallback.getSoldProperties(area)
+    }
+    return []
   }
 }

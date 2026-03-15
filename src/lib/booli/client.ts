@@ -36,7 +36,6 @@ export function getBooliClient(): GraphQLClient {
 
   clientInstance = new GraphQLClient(url, {
     headers,
-    signal: AbortSignal.timeout(TIMEOUT_MS),
   })
 
   return clientInstance
@@ -52,9 +51,7 @@ export async function requestWithRetry<T>(
 ): Promise<T> {
   const { maxRetries = MAX_RETRIES, initialDelayMs = INITIAL_DELAY_MS } = options
 
-  let attempt = 0
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       return await requestFn()
     } catch (error) {
@@ -66,9 +63,11 @@ export async function requestWithRetry<T>(
 
       const delay = initialDelayMs * Math.pow(2, attempt)
       await new Promise((resolve) => setTimeout(resolve, delay))
-      attempt++
     }
   }
+
+  // Unreachable -- the loop always returns or throws. Required by TypeScript.
+  throw new BooliApiError('Max retries exhausted', 'RETRY_EXHAUSTED')
 }
 
 export async function booliRequest<T>(
@@ -77,5 +76,7 @@ export async function booliRequest<T>(
 ): Promise<T> {
   const client = getBooliClient()
 
-  return requestWithRetry(() => client.request<T>(document, variables))
+  return requestWithRetry(() =>
+    client.request<T>({ document, variables, signal: AbortSignal.timeout(TIMEOUT_MS) }),
+  )
 }

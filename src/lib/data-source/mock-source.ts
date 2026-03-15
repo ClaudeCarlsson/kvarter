@@ -1,6 +1,7 @@
 /** @internal Test-only data source. Not used in production. */
 
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
+import { applyPropertyFilters } from '@/lib/filters'
 import type { Location, Pagination, Property, SearchFilters, SearchResults, SoldProperty } from '@/types'
 
 import { MOCK_LOCATIONS, MOCK_PROPERTIES } from '../booli/mock-data'
@@ -50,34 +51,7 @@ export class MockDataSource implements DataSource {
       )
     }
 
-    if (filters.priceRange?.min) {
-      results = results.filter((p) => p.price >= filters.priceRange!.min!)
-    }
-    if (filters.priceRange?.max) {
-      results = results.filter((p) => p.price <= filters.priceRange!.max!)
-    }
-
-    if (filters.roomsRange?.min) {
-      results = results.filter((p) => p.rooms >= filters.roomsRange!.min!)
-    }
-    if (filters.roomsRange?.max) {
-      results = results.filter((p) => p.rooms <= filters.roomsRange!.max!)
-    }
-
-    if (filters.areaRange?.min) {
-      results = results.filter((p) => p.livingArea >= filters.areaRange!.min!)
-    }
-    if (filters.areaRange?.max) {
-      results = results.filter((p) => p.livingArea <= filters.areaRange!.max!)
-    }
-
-    if (filters.propertyTypes && filters.propertyTypes.length > 0) {
-      results = results.filter((p) => filters.propertyTypes!.includes(p.propertyType))
-    }
-
-    if (filters.maxMonthlyFee) {
-      results = results.filter((p) => (p.monthlyFee ?? 0) <= filters.maxMonthlyFee!)
-    }
+    results = applyPropertyFilters(results, filters)
 
     const totalCount = results.length
     const paged = results.slice(pagination.offset, pagination.offset + pagination.limit)
