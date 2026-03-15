@@ -1,0 +1,4 @@
+.next
+node_modules
+bun.lockb
+src/lib/booli/__generated__

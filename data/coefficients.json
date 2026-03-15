@@ -1,0 +1,33 @@
+{
+  "version": "1.0.0",
+  "created_at": "2026-03-15T00:00:00",
+  "intercept": 8.5,
+  "coefficients": {
+    "sqm": 0.0085,
+    "rooms": 0.045,
+    "floor": 0.012,
+    "log_construction_age": -0.15,
+    "monthly_fee": -0.000045,
+    "lat": 0.82,
+    "lng": 0.18,
+    "property_type_apartment": 0.0,
+    "property_type_house": 0.22,
+    "property_type_townhouse": 0.12,
+    "property_type_cottage": -0.08,
+    "property_type_plot": -0.25
+  },
+  "feature_names": [
+    "sqm",
+    "rooms",
+    "floor",
+    "log_construction_age",
+    "monthly_fee",
+    "lat",
+    "lng",
+    "property_type_apartment",
+    "property_type_house",
+    "property_type_townhouse",
+    "property_type_cottage",
+    "property_type_plot"
+  ]
+}

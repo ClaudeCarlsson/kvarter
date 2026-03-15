@@ -1,0 +1,39 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  scraper:
+    build:
+      context: ./scraper
+    ports:
+      - '3001:3001'
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:3001/health || exit 1']
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  analytics:
+    build:
+      context: ./analytics
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - SCB_API_BASE=https://api.scb.se/OV0104/v1/doris/sv/ssd/
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - coefficients:/app/data
+
+volumes:
+  redis-data:
+  coefficients:
